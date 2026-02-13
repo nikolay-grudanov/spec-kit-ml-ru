@@ -1,0 +1,58 @@
+# Конфигурация ML Spec-Kit
+
+# Настройки воспроизводимости (Reproducibility)
+random_seed: 42
+
+# Настройки разделения данных (Data Split)
+train_val_test_split:
+  train: 0.70
+  validation: 0.15
+  test: 0.15
+
+# Язык по умолчанию для артефактов
+language: ru
+
+# Настройки экспериментов (Experiment Tracking)
+experiment_tracking:
+  tool: mlflow  # Options: mlflow, weights_and_biases, tensorboard, none
+  tracking_uri: ./mlruns  # URI для хранения экспериментов
+
+# Настройки версионирования данных (Data Versioning)
+data_versioning:
+  tool: dvc  # Options: dvc, git-lfs, none
+  remote: local  # Options: local, yandex, s3, gcs
+
+# Настройки качества данных (Data Quality)
+data_quality:
+  enable_checks: true
+  check_missing_values: true
+  check_duplicates: true
+  check_outliers: true
+  check_data_types: true
+
+# Настройки метрик (Metrics)
+metrics:
+  primary_metric: null  # Будет заполнен в спецификации проекта
+  secondary_metrics: []  # Дополнительные метрики
+
+# Настройки модели (Model)
+model:
+  save_path: ./models
+  checkpoint_interval: 1  # Сохранять каждую N эпоху
+
+# Настройки логирования (Logging)
+logging:
+  level: INFO  # Options: DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: ./logs/ml-spec-kit.log
+
+# Настройки документации (Documentation)
+documentation:
+  auto_generate_model_card: true
+  include_examples: true
+
+# Настройки тестирования (Testing)
+testing:
+  enable_unit_tests: true
+  enable_integration_tests: true
+  coverage_threshold: 80  # Минимальный процент покрытия кода тестами

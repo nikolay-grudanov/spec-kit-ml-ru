@@ -17,15 +17,15 @@
 **Testing**: pytest (для CLI тестов), ручное тестирование сгенерированных артефактов
 **Target Platform**: CLI инструмент (Linux/Mac/Windows)
 **Project Type**: CLI инструмент / система шаблонов
-**Performance Goals**: NEEDS CLARIFICATION (MVP без явных требований к производительности)
+**Performance Goals**: Latency < 100ms (p95), Throughput > 1 req/s, Full artifact generation < 1 minute (см. NFR-001 в spec.md)
 **Constraints**: Все артефакты на русском языке, ML-ориентированная структура шаблонов, интеграция с Qwen CLI
 **Scale/Scope**: 4 приоритетных шаблона для MVP (Data Spec, ML Spec, ML Plan, ML Tasks), 3 полных примера проектов (image classification, tabular classification, time series forecasting)
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+*GATE: Must pass before Phase 1 research. Re-check after Phase 1 design.*
 
-### Гейты перед Phase 0:
+### Гейты перед Phase 1:
 
 ✅ **PASS - Русскоязычность проекта**: Все генерируемые артефакты (шаблоны, примеры, документация) будут на русском языке согласно FR-002
 
@@ -35,9 +35,9 @@
 
 ### Гейты для проверки после Phase 1 (Re-evaluated):
 
-✅ **PASS - Структура шаблонов**: Монолитные шаблоны реализованы как единые документы без модульного разделения (FR-012). В `data-model.md` определены 4 монолитных шаблона: ML Spec, ML Plan, ML Tasks, Data Spec.
+✅ **PASS - Структура шаблонов**: Монолитные шаблоны реализованы как единые документы без модульного разделения (FR-008). В `data-model.md` определены 4 монолитных шаблона: ML Spec, ML Plan, ML Tasks, Data Spec.
 
-✅ **PASS - Расширяемость**: Базовые шаблоны для MVP поддерживают добавление опциональных секций (MLOps, monitoring, serving) без нарушения существующей структуры (FR-011). В `data-model.md` определены опциональные секции для Post-MVP: MLOps, Serving, Security, Compliance, Ethics.
+✅ **PASS - Расширяемость**: Базовые шаблоны для MVP поддерживают добавление опциональных секций (MLOps, monitoring, serving) без нарушения существующей структуры (FR-007). В `data-model.md` определены опциональные секции для Post-MVP: MLOps, Serving, Security, Compliance, Ethics.
 
 ✅ **PASS - Смешанный подход к терминам**: В `research.md` определен смешанный подход: русский текст для контента, английские термины в скобках при первом упоминании. В `contracts/commands.md` определены языковые требования для всех команд.
 
@@ -79,7 +79,7 @@
 ```text
 specs/[###-feature]/
 ├── plan.md              # This file (/speckit.plan command output)
-├── research.md          # Phase 0 output (/speckit.plan command)
+├── research.md          # Phase 1 output (/speckit.plan command)
 ├── data-model.md        # Phase 1 output (/speckit.plan command)
 ├── quickstart.md        # Phase 1 output (/speckit.plan command)
 ├── contracts/           # Phase 1 output (/speckit.plan command)

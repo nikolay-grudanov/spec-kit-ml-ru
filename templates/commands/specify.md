@@ -71,33 +71,76 @@ Given that feature description, do this:
    - The JSON output will contain BRANCH_NAME and SPEC_FILE paths
    - For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'\''m Groot' (or double-quote if possible: "I'm Groot")
 
-3. Load `templates/spec-template.md` to understand required sections.
+  3. Load `templates/spec-template.md` to understand required sections.
 
-4. Follow this execution flow:
+  4. Determine Project Type:
 
-    1. Parse user description from Input
-       If empty: ERROR "No feature description provided"
-    2. Extract key concepts from description
-       Identify: actors, actions, data, constraints
-    3. For unclear aspects:
-       - Make informed guesses based on context and industry standards
-       - Only mark with [NEEDS CLARIFICATION: specific question] if:
-         - The choice significantly impacts feature scope or user experience
-         - Multiple reasonable interpretations exist with different implications
-         - No reasonable default exists
-       - **LIMIT: Maximum 3 [NEEDS CLARIFICATION] markers total**
-       - Prioritize clarifications by impact: scope > security/privacy > user experience > technical details
-    4. Fill User Scenarios & Testing section
-       If no clear user flow: ERROR "Cannot determine user scenarios"
-    5. Generate Functional Requirements
-       Each requirement must be testable
-       Use reasonable defaults for unspecified details (document assumptions in Assumptions section)
-    6. Define Success Criteria
-       Create measurable, technology-agnostic outcomes
-       Include both quantitative metrics (time, performance, volume) and qualitative measures (user satisfaction, task completion)
-       Each criterion must be verifiable without implementation details
-    7. Identify Key Entities (if data involved)
-    8. Return: SUCCESS (spec ready for planning)
+     **ML/DATA SCIENCE PROJECT INDICATORS** (analyze feature description for keywords):
+     - ML keywords: "model", "predict", "classify", "regression", "train", "machine learning", "neural network", "deep learning"
+     - Data science keywords: "dataset", "analytics", "insights", "forecast", "clustering", "anomaly detection"
+     - Metrics keywords: "accuracy", "F1", "precision", "recall", "MAE", "RMSE", "ROC-AUC"
+     - Task types: "image classification", "time series", "recommendation", "natural language processing"
+
+     **WEB/SOFTWARE PROJECT INDICATORS** (default):
+     - User interactions, UI/UX, API endpoints, database operations, authentication
+
+     **DETERMINE PROJECT TYPE**:
+     - If 2+ ML/Data Science indicators found → **ML Project**
+     - Otherwise → **Web/Software Project**
+
+  5. Follow this execution flow (ADAPTED FOR PROJECT TYPE):
+
+     **FOR ML PROJECTS:**
+
+     1. Parse user description from Input
+        If empty: ERROR "No feature description provided"
+     2. Extract ML-specific concepts:
+        - Task type: classification, regression, time series, clustering, etc.
+        - Data: datasets, features, schema
+        - ML requirements: metrics, validation, security
+     3. Fill ML Scenarios & Use Cases section
+        Describe user interactions with ML model (input → output → value)
+     4. Fill ML Requirements section:
+        - Performance Metrics: primary/secondary metrics, thresholds
+        - Data Requirements: schema, volume, quality
+        - Validation Strategy: splits, cross-validation, stratification
+        - Security & Privacy: PII, anonymization, access control
+        - Version Control: MLflow/DVC, experiment tracking
+     5. Fill ML Architecture section (if technical details known)
+        - Model type, framework, infrastructure
+     6. Fill ML Data Specification section (if data details known)
+        - Data overview, schema, quality checks
+     7. For unclear ML aspects:
+        - Make informed guesses based on ML best practices
+        - Only mark with [NEEDS CLARIFICATION: specific question] if critical
+        - **LIMIT: Maximum 3 [NEEDS CLARIFICATION] markers total**
+        - Prioritize: metrics > data quality > validation > security > implementation details
+
+     **FOR WEB/SOFTWARE PROJECTS:**
+
+     1. Parse user description from Input
+        If empty: ERROR "No feature description provided"
+     2. Extract key concepts from description
+        Identify: actors, actions, data, constraints
+     3. For unclear aspects:
+        - Make informed guesses based on context and industry standards
+        - Only mark with [NEEDS CLARIFICATION: specific question] if:
+          - The choice significantly impacts feature scope or user experience
+          - Multiple reasonable interpretations exist with different implications
+          - No reasonable default exists
+        - **LIMIT: Maximum 3 [NEEDS CLARIFICATION] markers total**
+        - Prioritize clarifications by impact: scope > security/privacy > user experience > technical details
+     4. Fill User Scenarios & Testing section
+        If no clear user flow: ERROR "Cannot determine user scenarios"
+     5. Generate Functional Requirements
+        Each requirement must be testable
+        Use reasonable defaults for unspecified details (document assumptions in Assumptions section)
+     6. Define Success Criteria
+        Create measurable, technology-agnostic outcomes
+        Include both quantitative metrics (time, performance, volume) and qualitative measures (user satisfaction, task completion)
+        Each criterion must be verifiable without implementation details
+     7. Identify Key Entities (if data involved)
+     8. Return: SUCCESS (spec ready for planning)
 
 5. Write the specification to SPEC_FILE using the template structure, replacing placeholders with concrete details derived from the feature description (arguments) while preserving section order and headings.
 
@@ -254,8 +297,92 @@ Success criteria must be:
 - "Task completion rate improves by 40%"
 
 **Bad examples** (implementation-focused):
-
 - "API response time is under 200ms" (too technical, use "Users see results instantly")
 - "Database can handle 1000 TPS" (implementation detail, use user-facing metric)
 - "React components render efficiently" (framework-specific)
 - "Redis cache hit rate above 80%" (technology-specific)
+
+---
+
+## ML-Specific Questioning *(ML projects only)*
+
+### When Project Type = ML/DATA SCIENCE
+
+After filling ML sections and before presenting clarification questions, ask ML-specific questions:
+
+#### Performance Metrics (Метрики производительности)
+1. What is the **primary metric** for model evaluation?
+   - Options: accuracy / F1-score / precision / recall / MAE / RMSE / ROC-AUC / custom
+   - **Recommended**: Depends on task type - accuracy for balanced classification, F1 for imbalanced, MAE/RMSE for regression
+
+2. Are there **secondary metrics** for monitoring?
+   - Examples: precision, recall, specificity, confusion matrix, calibration
+
+3. What is the **minimum acceptable threshold** for production?
+   - Example: "F1-score >= 0.85", "MAE <= 5.0"
+
+4. How do ML metrics relate to **business KPIs**?
+   - Example: "1% accuracy improvement = $10K revenue increase"
+
+#### Data Quality (Качество данных)
+1. What is the **expected data schema**?
+   - Column types, allowed values, constraints
+
+2. How to handle **missing values**?
+   - Options: deletion / mean imputation / median imputation / ML-based imputation
+   - **Recommended**: ML-based (e.g., iterative imputer) for tabular data
+
+3. What **data quality checks** are required before training?
+   - Schema validation, range checks, required fields, duplicate detection
+
+4. How to prevent **data leakage**?
+   - **Critical**: Split data BEFORE any preprocessing/feature engineering
+   - **Recommended**: Use sklearn's train_test_split on raw data
+
+5. Are there known **data issues**?
+   - Imbalanced classes, outliers, noise, missing patterns
+
+#### Validation Strategy (Стратегия валидации)
+1. What is the **train/val/test split**?
+   - Default: 70/15/15
+   - **Recommended**: Use validation set for hyperparameter tuning
+
+2. Is **cross-validation** required?
+   - Yes: For small datasets (<10k samples) or hyperparameter optimization
+   - No: For large datasets or time series
+
+3. Is **stratification** needed?
+   - Yes: For classification with imbalanced classes
+   - No: For regression or balanced datasets
+
+4. What **random seed** to use?
+   - Default: 42 for reproducibility
+
+#### Security & Privacy (Безопасность и конфиденциальность)
+1. Do data contain **personal information** (PII)?
+   - GDPR/CCPA compliance requirements
+
+2. Is **data anonymization** required?
+   - Options: hashing, masking, aggregation, differential privacy
+
+3. Who has **access** to data and models?
+   - Access control, authentication requirements
+
+4. Are there **encryption** requirements?
+   - Data at rest, data in transit
+
+#### Version Control (Управление версиями)
+1. What **model versioning** system?
+   - Options: MLflow / DVC / git-based tracking / custom
+   - **Recommended**: MLflow for model registry
+
+2. How to track **experiments**?
+   - Options: MLflow / Weights & Biases / TensorBoard / custom
+
+3. What is the **rollback strategy** for production models?
+   - A/B testing, canary deployment, instant rollback
+
+4. Is **data versioning** required?
+   - DVC, git-lfs, S3 versioning
+
+**Integration**: After user answers these ML-specific questions, integrate answers into the appropriate ML sections before proceeding to validation.

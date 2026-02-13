@@ -1,8 +1,10 @@
 # ML Спецификация: Адаптация Spec-Kit для ML Проектов
 
-**Feature Branch**: `001-ml-adaptation`
+**Feature Branch**: `specs/001-ml-adaptation`
 **Created**: 2026-02-13
-**Status**: Draft
+**Status**: Ready for Implementation
+**Version**: 1.2 (Remediation Round 5 - FINAL)
+**Last Updated**: 2026-02-13
 **Input**: Описание задачи: "Адаптация GitHub Spec-Kit для ML/DS проектов, где вместо API specs нужны data specs, model architectures, training plans и т.д. Все артефакты должны генерироваться на русском языке."
 
 ## ML Сценарии и тестирование *(обязательно)*
@@ -19,6 +21,25 @@
   - Развертывать независимо
   - Демонстрировать пользователям независимо
 -->
+
+### Реализация Проекта
+
+Проект адаптации ML Spec-Kit включает **33 задачи** (детальное описание в `tasks.md`), разделённые на 6 фаз:
+
+| Фаза | Задачи | Время | Описание |
+|------|--------|-------|----------|
+| | **Phase 1:** Infrastructure | 5 задач | 22ч | Environment setup, DVC, MLflow, pre-commit |
+| | **Phase 2:** Templates | 5 задач | 26ч | ML-шаблоны (spec, plan, tasks, data-spec) |
+| | **Phase 3:** Commands | 6 задач | 29ч | Адаптация Qwen CLI команд для ML |
+| | **Phase 4:** Scripts | 2 задачи | 6ч | ML environment скрипты |
+| | **Phase 5:** Documentation | 6 задач | 47ч | README-ML, примеры, migration guide |
+| | **Phase 6:** Quality | 9 задач | 87ч | Тестирование, NFR validation |
+
+**Общее время:** 217 часов (~27 рабочих дней при 8ч/день)
+
+**Git workflow:** После завершения каждой фазы создаётся PR в `specs/001-ml-adaptation`, после завершения всех фаз - финальный merge в `main`.
+
+---
 
 ### ML История 1 - Адаптация шаблонов для ML проектов (Приоритет: P1)
 
@@ -80,7 +101,11 @@
   - При последующих упоминаниях: только русское название
   - Примеры: "гиперпараметры (hyperparameters)" → далее "гиперпараметры", "обучение (training)" → далее "обучение"
   - Исключения: устоявшиеся в русском ML-сообществе англицизмы остаются на английском (accuracy, precision, recall, F1-score, pipeline)
-- **FR-003**: Система ДОЛЖНА включать специализированные шаблоны: data-spec, model-spec, evaluation-plan
+- **FR-003**: Система ДОЛЖНА включать специализированные шаблоны для описания компонентов ML систем:
+  - **MVP (v1.0):** `data-spec-template.md` (Task 2.5)
+  - **Post-MVP (v1.1+):** `model-spec-template.md`, `evaluation-template.md` (см. Future Work)
+
+  **Обоснование:** Для MVP достаточно data-spec как критичного компонента. Model и evaluation specs добавляются в v1.1 после получения user feedback.
 - **FR-004**: Система ДОЛЖНА обновлять команды `/speckit.specify`, `/speckit.plan`, `/speckit.tasks` для генерации ML-ориентированного контента
 - **FR-005**: Система ДОЛЖНА предоставлять примеры ML проектов для демонстрации использования адаптированного Spec-Kit
 - **FR-006**: Система ДОЛЖНА включать в процессы `/speckit.specify` и `/speckit.clarify` вопросы для уточнения следующих ML-специфичных аспектов:
@@ -90,34 +115,263 @@
   - Безопасность и конфиденциальность данных (GDPR compliance, anonymization, access control)
   - Управление версиями моделей и экспериментов (MLflow, DVC, git-based tracking)
 - **FR-007**: Система ДОЛЖНА поддерживать масштабируемость по секциям: базовый шаблон для простых проектов с возможностью расширения дополнительными секциями (MLOps, monitoring, serving) по требованию
-- **FR-008**: Система ДОЛЖНА реализовывать каждый шаблон как монолитный документ (единый файл без модульного разделения)
+- **FR-008**: Система ДОЛЖНА реализовывать каждый шаблон как **монолитный документ** (единый файл без модульного разделения на отдельные файлы), но с **расширяемой внутренней структурой секций**:
+  - Базовый шаблон содержит обязательные секции (Overview, Requirements, Architecture)
+  - Внутри одного файла могут быть опциональные секции (MLOps, Monitoring, Serving)
+  - Секции добавляются/удаляются комментированием блоков внутри файла
+  - Запрещено: file includes, modular imports, отдельные файлы для секций
+  - Разрешено: условные секции через Markdown комментарии `<!-- OPTIONAL: MLOps -->`
+
+**Пояснение FR-007 + FR-008:**
+FR-007 и FR-008 работают вместе: шаблон остаётся монолитным (один .md файл), но внутри содержит базовые (обязательные) и расширенные (опциональные) секции. Пользователь получает полный шаблон и может закомментировать ненужные секции.
+
+Пример структуры `ml-spec-template.md`:
+```
+# ML Спецификация
+
+## Overview (обязательная секция)
+...
+
+## Requirements (обязательная секция)
+...
+
+<!-- OPTIONAL SECTION: MLOps
+## MLOps
+Настройка CI/CD, мониторинг, serving
+-->
+
+<!-- OPTIONAL SECTION: Ethics
+## Ethics & Bias Detection
+Проверка на bias, fairness metrics
+-->
+```
 
 ### Нефункциональные требования
 
 **MVP (первый релиз) - Минимальные базовые требования:**
 
 - **NFR-001 (Производительность)**: Система ДОЛЖНА обеспечивать следующие минимальные показатели производительности:
-  - Генерация одного шаблона (spec/plan/tasks): < 10 секунд
-  - Поддержка файлов размером до 5 МБ
+  - Latency: Генерация шаблона < 100ms (p95)
+  - Throughput: Обработка > 1 запроса в секунду (для CLI)
   - Генерация полного набора артефактов для одного проекта: < 1 минуты
-  - Измерение: ручное тестирование на референсной машине (CPU: 4 ядра, RAM: 8GB)
+  - Поддержка файлов размером до 5 МБ
+  - Измерение: ручное тестирование на референсной машине:
+    - CPU: 4 ядра (Intel Core i5-8250U или эквивалент, 1.6 GHz base clock)
+    - RAM: 8GB DDR4
+    - Disk: SSD (минимум 256GB для быстрого I/O)
+    - OS: Ubuntu 22.04 LTS / macOS 13+ / Windows 11 WSL2
+    - Python: 3.11+
 
 - **NFR-002 (Масштабируемость)**: Система ДОЛЖНА поддерживать следующие минимальные масштабы для MVP:
+  - Поддержка до 50 шаблонов в репозитории без деградации производительности
   - До 10 параллельных ML проектов в одном репозитории
   - Размер одного проекта: до 100 файлов в examples/
   - Размер одного шаблона: до 500 строк Markdown
   - Примечание: горизонтальная/вертикальная масштабируемость для production откладывается на post-MVP
 
 - **NFR-003 (Надежность)**: Система ДОЛЖНА обеспечивать базовую надежность для MVP:
-  - Graceful error handling: при ошибке генерации выводится читаемое сообщение (не stack trace)
-  - Rollback capability: сохранение предыдущих версий файлов перед перезаписью
-  - Валидация входных данных: проверка корректности YAML/TOML конфигураций перед использованием
-  - Примечание: требования к uptime и автоматическому восстановлению откладываются на post-MVP
+  - Error Rate: < 1% при валидном вводе
+  - Recovery Time: < 1 сек после сбоя (stateless CLI)
+
+  **Graceful Error Handling:**
+  - При ошибке генерации выводится user-friendly сообщение (НЕ raw stack trace)
+  - Формат сообщения об ошибке:
+    ```
+    ❌ Ошибка: [Краткое описание проблемы]
+
+    Причина: [Что вызвало ошибку]
+    Решение: [Что сделать для исправления]
+
+    Детали: [Опционально - technical details для debugging]
+    ```
+  - Максимальная длина user message: 150 символов для краткого описания
+  - Язык сообщений: русский (кроме technical stack traces в режиме --debug)
+  - Exit codes: 0=success, 1=user error, 2=system error, 130=interrupted
+
+  **Rollback Capability:**
+  - Перед перезаписью файлов создаётся backup: `.backup/YYYY-MM-DD-HHmmss/`
+  - Хранение: последние 5 backups (автоочистка старых)
+  - Rollback команда: `speckit.rollback --to=timestamp`
+  - Atomic file operations: используется tmp файлы + rename для предотвращения corruption
+
+  **Input Validation:**
+  - YAML/TOML конфигурации проверяются перед использованием (schema validation)
+  - При невалидном config: показать конкретную строку и ошибку (не generic "invalid YAML")
+  - Пример:
+    ```
+    ❌ Ошибка в config.yaml:5
+
+    Проблема: Неверное значение для 'random_seed'
+    Ожидается: целое число (int)
+    Получено: "42" (строка)
+
+    Исправление: Удалите кавычки - используйте random_seed: 42
+    ```
+
+  **Error Recovery:**
+  - При прерывании команды (Ctrl+C): cleanup временных файлов
+  - При ошибке в середине multi-step операции: rollback выполненных шагов
+  - Idempotency: повторный запуск команды безопасен (не создаёт дубликаты)
+
+  **Примечание:** Требования к uptime (99.9%), автоматическому восстановлению, и monitoring откладываются на post-MVP.
 
 **Post-MVP (следующие итерации):**
 - Производительность: оптимизация для больших проектов (> 1000 файлов), параллельная генерация
 - Масштабируемость: поддержка распределённых репозиториев, интеграция с CI/CD на уровне организации
 - Надежность: автоматическое восстановление, health checks, мониторинг в production
+
+### Тестирование
+
+- **TR-001 (Test Coverage)**: Система ДОЛЖНА обеспечивать покрытие кода тестами согласно Constitution #12:
+  - Test coverage >= 80% для всех модулей в `src/`
+  - Измерение: pytest-cov с HTML отчётом
+  - Блокирующий CI/CD gate: PR не может быть смёржен если coverage < 80%
+  - Исключения: скрипты в `.ml-spec/scripts/` и `.specify/scripts/` (могут иметь меньшее покрытие)
+  - Инструменты: pytest >= 7.4, pytest-cov >= 4.1
+  - Отчётность: HTML отчёты в `htmlcov/`, badge в README.md
+
+**Обоснование:** Constitution #12 требует строгое соблюдение test coverage для production кода. Это критично для надёжности ML систем, где bugs могут привести к неверным предсказаниям.
+
+**Ссылка:** См. [Constitution #12](../../.specify/memory/constitution.md#12-testing---no-exceptions)
+
+### Git Workflow
+
+Проект использует **упрощённый feature-branch workflow** для управления спецификацией и имплементацией:
+
+**Branch Strategy:**
+
+```
+main (production)
+  └─ specs/NNN-name  (feature branch: спека + имплементация)
+       ├─ feature/NNN-P1-name  → merge в specs/NNN-*
+       ├─ feature/NNN-P2-name  → merge в specs/NNN-*
+       ├─ feature/NNN-P3-name  → merge в specs/NNN-*
+       └─ feature/NNN-P6-name  → merge в specs/NNN-*
+            └─ specs/NNN-name → merge в main (после всех Phases)
+```
+
+**Workflow Steps:**
+
+1. **Specification Phase (текущая фаза):**
+   ```bash
+   git checkout -b specs/001-ml-adaptation main
+   # Работа над spec.md, plan.md, tasks.md
+   # Запуск /speckit.analyze до получения 0 CRITICAL issues
+   # Коммит финальной спеки
+   ```
+
+2. **Implementation Phases (6 фаз):**
+   ```bash
+   # Phase 1: Infrastructure
+   git checkout -b feature/001-P1-infrastructure specs/001-ml-adaptation
+   # Имплементация Tasks 1.0-1.5
+   # Create PR: feature/001-P1-infrastructure → specs/001-ml-adaptation
+   # После review и merge → Phase 1 завершена
+   
+   # Phase 2: Templates
+   git checkout -b feature/001-P2-templates specs/001-ml-adaptation
+   # Имплементация Tasks 2.2-2.6
+   # PR и merge в specs/001-ml-adaptation
+   
+   # Phases 3-6 аналогично...
+   ```
+
+3. **Параллельные Phases (опционально):**
+   ```bash
+   # Если фазы независимы, можно объединить:
+   git checkout -b feature/001-P3-4-commands-scripts specs/001-ml-adaptation
+   # Имплементация Phases 3+4 вместе
+   # PR и merge в specs/001-ml-adaptation
+   ```
+
+4. **Final Merge в Production:**
+   ```bash
+   # После завершения ВСЕХ 6 Phases:
+   # Создать PR: specs/001-ml-adaptation → main
+   # После review и merge → tag release v1.0.0
+   # Удалить feature branch: git branch -d specs/001-ml-adaptation
+   ```
+
+**Naming Convention:**
+
+| Branch Type | Pattern | Example | Description |
+|-------------|---------|---------|-------------|
+| Feature spec | `specs/NNN-name` | `specs/001-ml-adaptation` | Спека + имплементация |
+| Phase | `feature/NNN-PX-name` | `feature/001-P1-infrastructure` | Одна фаза |
+| Multi-phase | `feature/NNN-PX-Y-name` | `feature/001-P3-4-commands` | Несколько фаз |
+| Hotfix | `hotfix/NNN-name` | `hotfix/001-critical-bug` | Критичные исправления |
+
+Где:
+- `NNN` - трёхзначный номер проекта (001, 002, 003...)
+- `PX` - номер фазы (P1, P2, P3, P4, P5, P6)
+- `name` - краткое описание (lowercase-with-dashes)
+
+**Commit Message Convention:**
+
+Формат: `type(scope): description`
+
+Types:
+- `feat` - новая функциональность
+- `fix` - исправление бага
+- `docs` - обновление документации
+- `test` - добавление/изменение тестов
+- `refactor` - рефакторинг кода
+- `perf` - оптимизация производительности
+- `chore` - технические изменения (dependencies, configs)
+
+Scope:
+- `P1` - `P6` для phase-level изменений
+- `task1.0`, `task2.2` для task-level изменений
+
+Язык описания: **русский**
+
+Примеры:
+```bash
+feat(P1): добавлен интерактивный environment setup с поддержкой conda/pip/uv
+fix(task3.6): исправлены ML-вопросы в speckit.specify.toml
+docs(P5): обновлён README-ML с примерами подключения Яндекс.Диска
+test(P6): добавлены NFR-001 benchmarks для производительности
+refactor(task2.2): упрощена структура ml-spec-template.md
+perf(P1): оптимизирован check_environment.py (ускорение на 40%)
+chore: обновлены зависимости (pytorch 2.0.0 → 2.1.0)
+```
+
+**Pull Request Requirements:**
+
+Каждый PR должен содержать:
+- [ ] Code review от минимум 1 человека
+- [ ] CI/CD pipeline passed:
+  - [ ] pytest (coverage >= 80%)
+  - [ ] mypy (type checking)
+  - [ ] black (code formatting)
+  - [ ] flake8 (linting)
+- [ ] Documentation обновлена (если применимо)
+- [ ] CHANGELOG-ML.md обновлён
+- [ ] Task checklist в PR description:
+  ```markdown
+  ## Completed Tasks
+  - [x] Task 1.0: Environment setup (4h)
+  - [x] Task 1.2: Directory structure (2h)
+  - [ ] Task 1.3: Config file (в процессе)
+  
+  ## Testing
+  - [x] Unit tests added
+  - [x] Integration tests passed
+  - [x] Manual testing completed
+  
+  ## Documentation
+  - [x] README-ML.md updated
+  - [x] Code comments added
+  - [x] CHANGELOG-ML.md updated
+  ```
+
+**Подробности:**
+- Полный Git workflow: [Constitution Section 10](../../.specify/memory/constitution.md#10-git-workflow)
+- Commit message convention следует [Conventional Commits](https://www.conventionalcommits.org/)
+- Branch protection rules для `main`:
+  - Require pull request reviews
+  - Require status checks (CI/CD)
+  - No direct pushes to main
 
 ### Ключевые сущности
 
@@ -138,12 +392,35 @@
 - **Security & Privacy Template**: Шаблон для определения требований безопасности и конфиденциальности данных
 - **Version Control Template**: Шаблон для определения стратегии управления версиями моделей и экспериментов
 
+### Будущие Шаблоны (Post-MVP v1.1+)
+
+Следующие шаблоны планируются после MVP feedback:
+
+1. **model-spec-template.md** (v1.1, ~8 часов):
+   - Архитектура модели (layers, parameters)
+   - Hyperparameters и tuning strategy
+   - Training configuration
+   - Performance benchmarks
+
+2. **evaluation-template.md** (v1.1, ~6 часов):
+   - Evaluation metrics definition
+   - Test dataset specification
+   - Baseline comparison
+   - Error analysis guidelines
+
+3. **metrics-spec-template.md** (v1.2, ~4 часа):
+   - Business metrics vs ML metrics
+   - Success criteria thresholds
+   - Monitoring and alerting rules
+
+**Roadmap:** Эти шаблоны будут добавлены в отдельных feature branches (specs/002-model-spec, specs/003-evaluation-spec) после сбора user feedback по MVP.
+
 ## ML Критерии успеха *(обязательно)*
 
 ### Измеримые результаты
 
 **MVP (первый релиз):**
-- **SC-001**: 4 приоритетных шаблона созданы и доступны на русском языке (Data Spec, ML Spec, ML Plan, ML Tasks)
+- **SC-001**: 5 приоритетных шаблонов созданы и доступны на русском языке (Data Spec, ML Spec, ML Plan, ML Tasks, Template Structure Validation)
 - **SC-002**: Команды `/speckit.specify`, `/speckit.plan`, `/speckit.tasks` генерируют ML-ориентированный контент на русском языке
 - **SC-003**: Минимум 2 полных примера ML проектов доступны (image classification, tabular data)
 - **SC-004**: 100% текста в шаблонах и сгенерированных артефактах на русском языке с использованием смешанного подхода к техническим терминам (русское название + английский в скобках)

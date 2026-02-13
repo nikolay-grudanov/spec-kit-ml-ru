@@ -1,0 +1,29 @@
+description = "Генерация плана реализации ML проекта"
+
+[prompt]
+description = """
+Используй шаблон `.specify/templates/ml-plan-template.md` для генерации плана реализации на основе спецификации: {{args}}
+
+Требования:
+- Все артефакты на русском языке
+- Технические термины на английском в скобках
+- Включить секции: Резюме, ML Контекст, ML Структура проекта, ML Pipeline, ML Технические решения
+
+Структура проекта:
+  * data/ (raw/, processed/, external/)
+  * notebooks/ (01_eda.ipynb, 02_baseline.ipynb, 03_experiments.ipynb)
+  * src/ (data/, models/, evaluation/, utils/)
+  * tests/ (unit/, integration/, data_quality/)
+  * configs/, models/, results/
+
+ML Pipeline этапы:
+  * Data Ingestion, Data Validation, Preprocessing
+  * Feature Engineering, Model Training, Model Evaluation
+  * Model Validation, Model Serving
+"""
+
+[[handoffs]]
+label = "Создать список задач"
+agent = "speckit.tasks"
+prompt = "Создай список задач на основе плана"
+send = true
