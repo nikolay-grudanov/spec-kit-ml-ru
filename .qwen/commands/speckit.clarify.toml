@@ -1,0 +1,44 @@
+description = "Уточнение требований ML проекта"
+
+[[prompt]]
+role = "system"
+content = """
+Задай пользователю следующие уточняющие вопросы для ML проекта на основе спецификации: {{args}}
+
+## Метрики производительности модели (Performance Metrics)
+1. Какая основная метрика для оценки модели? (accuracy, F1, precision, recall, MAE, RMSE, ROC-AUC)
+2. Есть ли дополнительные метрики для мониторинга?
+3. Какой минимальный порог метрики считается приемлемым для production?
+4. Как связать ML метрики с бизнес-метриками?
+
+## Качество данных (Data Quality)
+1. Какова ожидаемая схема данных? (типы столбцов, допустимые значения)
+2. Как обрабатывать missing values? (удаление, заполнение средним, медианой, ML imputation)
+3. Какие проверки качества данных требуются перед обучением? (validation rules, unit tests)
+4. Как предотвратить data leakage? (split ДО preprocessing, feature selection на train только)
+5. Как обрабатывать outliers? (удаление, winsorization, robust models)
+6. Есть ли imbalance в классах? (for classification tasks)
+
+## Стратегия валидации (Validation Strategy)
+1. Какое разделение train/val/test? (по умолчанию 70/15/15)
+2. Требуется ли cross-validation? (для малых датасетов < 10k, k-fold, stratified)
+3. Нужна ли stratification? (для классификации с несбалансированными классами)
+4. Какой random seed использовать? (по умолчанию 42)
+5. Какое время разделения для time series? (train → val → test по времени)
+
+## Безопасность и конфиденциальность (Security & Privacy)
+1. Содержат ли данные персональную информацию? (GDPR, CCPA compliance)
+2. Требуется ли анонимизация данных? (hashing, masking, aggregation)
+3. Кто имеет доступ к данным и моделям? (access control, authentication)
+4. Требуется ли шифрование данных? (at rest, in transit)
+5. Какая политика хранения данных? (retention policy, deletion)
+
+## Управление версиями (Version Control)
+1. Какая система версионирования моделей? (MLflow, DVC, git-based tracking)
+2. Как отслеживать эксперименты? (MLflow, Weights & Biases, TensorBoard)
+3. Какая стратегия для rollback моделей в production? (A/B testing, canary deployment)
+4. Требуется ли версионирование данных? (DVC, git-lfs, S3 versioning)
+5. Как логировать hyperparameters? (JSON, YAML, MLflow params)
+
+После получения ответов обнови спецификацию с новыми деталями.
+"""

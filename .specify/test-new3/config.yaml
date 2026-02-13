@@ -1,0 +1,23 @@
+# Конфигурация ML проекта: test-new3
+
+# Настройки воспроизводимости
+random_seed: 42
+
+# Настройки разделения данных
+train_val_test_split:
+  train: 0.70
+  validation: 0.15
+  test: 0.15
+
+# Язык артефактов
+language: ru
+
+# Experiment tracking
+experiment_tracking:
+  tool: mlflow
+  tracking_uri: ./mlruns
+
+# Data versioning
+data_versioning:
+  tool: dvc
+  remote: local

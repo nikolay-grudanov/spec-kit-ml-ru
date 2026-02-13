@@ -7,6 +7,39 @@ All notable changes to the Specify CLI and templates are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **`specify init-ml` Command**: Initialize ML projects with ML-specific commands and templates
+  - Downloads base Spec-Kit template from GitHub releases
+  - Automatically adds 4 ML command files to `.specify/templates/commands/`:
+    - `speckit.specify-ml.md` - ML specification command with FR-006 questions (metrics, data, validation, security, versioning)
+    - `speckit.plan-ml.md` - ML planning command with 5 implementation phases
+    - `speckit.tasks-ml.md` - ML tasks command with ML-specific priorities
+    - `speckit.clarify-ml.md` - ML clarification command with ML taxonomy (8 categories)
+  - Automatically adds ML spec template (`ml-spec-template.md`) to `.specify/templates/`
+  - Supports all AI assistants: claude, gemini, copilot, cursor-agent, qwen, opencode, codex, windsurf, kilocode, auggie, codebuddy, amp, shai, q, agy, bob, qoder
+
+- **ML Command Files** (in `templates/commands/`):
+  - `specify-ml.md` (388 lines) - ML specification with 5 ML question categories
+  - `plan-ml.md` (400 lines) - ML planning with 5 implementation phases (Data, Model, Evaluation, Deployment, Production)
+  - `tasks-ml.md` (500 lines) - ML tasks with ML-specific priorities and task breakdown
+  - `clarify-ml.md` (400 lines) - ML clarification with ML taxonomy (8 categories)
+
+- **ML-Specific Templates**:
+  - `templates/ml-spec-template.md` - ML specification template with ML sections
+  - Updated `templates/spec-template.md` with optional ML sections (ML Scenarios, Requirements, Architecture, Data Specification)
+
+- **Documentation**:
+  - `ML_COMMANDS.md` - Complete guide to ML commands, templates, and usage
+  - Updated `README-ML.md` with `specify init-ml` command documentation
+
+### Changed
+
+- **ML Template Strategy**: ML command files use `-ml` suffix for clear separation from web/software commands
+- **ML Template Location**: `ml-spec-template.md` moved to `templates/` directory for use by `init-ml` command
+
 ## [0.1.0] - 2026-01-28
 
 ### Added
